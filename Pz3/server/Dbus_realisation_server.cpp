@@ -35,7 +35,7 @@ unsigned long get_start_state(DBusConnection* conn){
     if (!dbus_message_iter_init(dbus_reply, &args))
         printf("dbus: Message Has No Parameters\n");
     else if (DBUS_TYPE_UINT32 != dbus_message_iter_get_arg_type(&args)){
-        printf("dbus: Argument is not uint_32t!\n");
+        printf("dbus: Argument must be uint_32t type!\n");
     }
     else{
         unsigned long temp_data;
@@ -59,9 +59,9 @@ unsigned long get_state(DBusConnection* conn){
 
     if (dbus_message_is_signal(msg, PLATFORM_CONNECTION_IF, "StateChanged")){
         if (!dbus_message_iter_init(msg, &args))
-                printf("dbus: Message Has No Parameters\n");
+                printf("dbus: Message doesn't have any parameters\n");
         else if (DBUS_TYPE_UINT32 != dbus_message_iter_get_arg_type(&args)){
-                printf("dbus: Argument is not uint_32t!\n");
+                printf("dbus: Argument must be uint_32t type\n");
                 printf("%d\n", dbus_message_iter_get_arg_type(&args));
         }
         else
@@ -118,7 +118,7 @@ int main (int argc, char **argv)
 
     init_internet_checker(&err, conn_chacker);
 
-    printf("%d\n", get_start_state(conn_chacker)); // Получение изначального состояния
+    printf("%d\n", get_start_state(conn_chacker));
     
     if(get_start_state(conn_chacker) == 70){
         printf("true\n");
@@ -126,9 +126,6 @@ int main (int argc, char **argv)
         start_internet_time = std::time(nullptr);
     }
 
-
-
-    // Get a well known name
     ret = dbus_bus_request_name (conn, SERVER_BUS_NAME, DBUS_NAME_FLAG_DO_NOT_QUEUE, &dbus_error);
 
     if (dbus_error_is_set (&dbus_error))
