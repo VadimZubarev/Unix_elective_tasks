@@ -36,8 +36,6 @@ int main (int argc, char **argv)
     if (!conn) 
         exit (1);
 
-
-    // Get a well known name
     while (1) {
         ret = dbus_bus_request_name (conn, CLIENT_BUS_NAME, 0, &dbus_error);
 
@@ -101,8 +99,7 @@ int main (int argc, char **argv)
             fprintf (stderr, "Error in dbus_bus_release_name\n");
             exit (1);
     }
-
-
+    
     return 0;
 }
 
