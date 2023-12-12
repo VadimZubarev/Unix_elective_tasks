@@ -1,107 +1,67 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include "sys/wait.h"
-#include "sys/types.h"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <json-c/json.h>
+#include <json-c/json_object.h>
+#include <json-c/json_tokener.h>
 
-char buf[] = "a write to stdout\n";
+void launch_process(const char* launch)
+{
+    pid_t pid = fork();
 
-struct process_arg{
-    int arg_num = 0;
-    char *binaryPath;
-    char *arg1;
-    char *arg2;
-    char *arg3;
-    char *arg4;
-
-    pid_t pid;
-    int child_status;
-};
-
-void startProcess(process_arg *pr){
-    switch (pr -> arg_num)
-    {
-    case 1:
-        execl(pr -> binaryPath, pr -> binaryPath, pr -> arg1, NULL); 
-        break;
-    case 2:
-        execl(pr -> binaryPath, pr -> binaryPath, pr -> arg1, pr -> arg2, NULL); 
-        break;
-    case 3:
-        execl(pr -> binaryPath, pr -> binaryPath, pr -> arg1, pr -> arg2, pr -> arg3, NULL); 
-        break;
-    case 4:
-        execl(pr -> binaryPath, pr -> binaryPath, pr -> arg1, pr -> arg2, pr -> arg3, pr -> arg4, NULL); 
-        break;
-    
-    default:
-        break;
+    if (pid == 0) {
+        execl("/bin/ping", "ping", "-c6", "google.com", NULL);
+        printf("Error, execl haven't worked!");
     }
+    else if (pid > 0) {
+        wait(NULL);
+    }
+    else {
+        printf("Error!\n");
+        exit(0);
+    }
+
 }
 
-int i = 0;
+int main(int argc, char* argv[]) {
 
-int main(void){
-    process_arg *processes[2];
+    FILE* fp = fopen("config.json", "r");
 
-    processes[0] = new process_arg;
-    processes[0] -> arg_num = 2;
-    processes[0] -> binaryPath = "/bin/ls";
-    processes[0] -> arg1 = "-lh";
-    processes[0] -> arg2 = "/home";
+    char buffer[1024];
 
-    processes[1] = new process_arg;
-    processes[1] -> arg_num = 1;
-    processes[1] -> binaryPath = "/bin";
-    processes[1] -> arg1 = "/home";
-    processes[1] -> arg2 = "";
+    struct json_object* json = json_tokener_parse(buffer);
 
-    
-    int child_status;
-    pid_t pid;
-    
-    
-    
-    for(i = 0; i < 2; i++){
-        if((pid = fork()) < 0){
-            printf("fork error\n");
-        }
-        if(pid == 0){
-            break;
-        }
+    struct json_object* launch_json, * timeout_json;
 
-    }
-
-
-    
-    if(pid == 0){
-        while(1){
-            int cur_i = i;
-
-            if((processes[i] -> pid = fork()) < 0){
-                printf("fork error\n");
-            }
-
-            if(processes[i] -> pid == 0){
-                startProcess(processes[i]);
-            }
-
-            printf("\n");
-
-            pid_t wpid = waitpid(processes[i] -> pid, &(processes[i] -> child_status), 0);
-
-            if(WIFEXITED(processes[i] -> child_status)){
-                printf("Saw %d done with %d\n", wpid, WEXITSTATUS(processes[i] -> child_status));
-            }
-            else{
-                printf("Child %d terminated annormally\n", wpid);
-            }
-            
-            sleep(2);
-        }
+    if (fp == NULL) {
+        printf("Haven't opened!\n");
+        return 1;
     }
     
+    fread(buffer, sizeof(buffer), 1, fp);
+    fclose(fp);
+
+    if (json == NULL) {
+        printf("Haven't read!\n");
+        return 1;
+    }
+
+    if (!json_object_object_get_ex(json, "launch", &launch_json) ||
+        !json_object_object_get_ex(json, "timeout", &timeout_json)) {
+        printf("Haven't got data!\n");
+        return 1;
+    }
+
+    const char* launch = json_object_get_string(launch_json);
+    int timeout = json_object_get_int(timeout_json);
+
+    while (1) {
+        launch_process(launch);
+        sleep(timeout);
+    }
+
     printf("pid = %d\n", getpid());
     exit(0);
 }
