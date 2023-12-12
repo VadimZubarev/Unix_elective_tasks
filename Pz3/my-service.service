@@ -1,0 +1,10 @@
+[Unit]
+Description=Internet Time Spent Service
+
+[Service]
+WorkingDirectory=/home
+ExecStart=/home/vadim/venv/bin/python3 "/home/vadim/Documents/unix/PZ3/main.py"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
