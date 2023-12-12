@@ -38,8 +38,7 @@ int main()
     char mybuf [256];
 
     shared_mem_ptr -> buffer_index = shared_mem_ptr -> buffer_print_index = 0;
-
-    //unsigned int time = std::time(NULL);
+    
     int shm_fd;
     pid_t cpid, pid;
     shm_fd = shm_open(SHM_NAME, O_RDWR, 0666);
@@ -49,13 +48,9 @@ int main()
     mlock(ptr, SHM_SIZE);
 
     pid = getpid();
-    //ptr -> time_stamp = std::time(NULL);
-    //printf("time: %d \n", ptr -> time_stamp);
 
     strcpy (mybuf, shared_mem_ptr -> buf);
     (shared_mem_ptr -> buffer_print_index)++;
-    //if (shared_mem_ptr -> buffer_print_index == MAX_BUFFERS)
-    //    shared_mem_ptr -> buffer_print_index = 0;
     write (fd_log, mybuf, strlen (mybuf));
 
     printf("msg %s \n", ptr -> msg);
