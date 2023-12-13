@@ -3,7 +3,7 @@ from gi.repository import GLib
 import time
 import logging
 from systemd.journal import JournalHandler
-from systemdlogging.toolbox import init_systemd_logging
+from systemdlogging.toolbox import init_systemd_logging # it attaches systemd logging handler to a root Python logger.
 
 def Connection_state(state):
  if state:
@@ -19,10 +19,10 @@ def Connection_state(state):
 
 def Connection_change(state):
  logger.debug(state)
- if state == 70: // NM_DEVICE_STATE_IP_CONFIG
+ if state == 70: # NM_DEVICE_STATE_IP_CONFIG
   Connection_state(TRUE)
  else:
-  if state == 20: // NM_DEVICE_STATE_UNAVAILABLE
+  if state == 20: # NM_DEVICE_STATE_UNAVAILABLE
    Connection_state(FALSE)
 
 init_systemd_logging()
