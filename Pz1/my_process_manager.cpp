@@ -12,7 +12,7 @@ void launch_process(const char* launch)
     pid_t pid = fork();
 
     if (pid == 0) {
-        execl("/bin/ping", "ping", "-c6", "google.com", NULL);
+        execl("/bin/ping", "ping", "-c6", launch, NULL);
         printf("Error, execl haven't worked!");
     }
     else if (pid > 0) {
