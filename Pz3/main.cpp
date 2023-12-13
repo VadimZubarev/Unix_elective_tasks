@@ -19,10 +19,10 @@ def Connection_state(state):
 
 def Connection_change(state):
  logger.debug(state)
- if state == 70:
+ if state == 70: // NM_DEVICE_STATE_IP_CONFIG
   Connection_state(TRUE)
  else:
-  if state == 20:
+  if state == 20: // NM_DEVICE_STATE_UNAVAILABLE
    Connection_state(FALSE)
 
 init_systemd_logging()
