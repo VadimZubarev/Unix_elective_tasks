@@ -25,13 +25,13 @@ def Connection_change(state):
   if state == 20: # NM_DEVICE_STATE_UNAVAILABLE
    Connection_state(FALSE)
 
-init_systemd_logging()
+init_systemd_logging() # Returns True if initialization went fine.
 logger = logging.getLogger('my_logger')
 logger.setLevel(logging.DEBUG)
-bus = SystemBus()
-nm = bus.get("org.freedesktop.NetworkManager")
-Connection_change(nm.state())
-nm.onStateChanged = Connection_change
+bus = pydbus.SystemBus()
+proxy = bus.get('org.freedesktop.NetworkManager', '/org/freedesktop/NetworkManager/Devices/0')
+Connection_change(proxy.state())
+proxy.onStateChanged = Connection_change
 
 loop = GLib.MainLoop()
 loop.run()
